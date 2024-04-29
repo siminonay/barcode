@@ -1,5 +1,6 @@
 package com.generator.barcode.service;
 
+import com.generator.barcode.domain.BarcodeRequest;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
@@ -20,20 +21,21 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class BarcodeService {
-    public byte[] generateQRCode(String content) throws WriterException, IOException {
+
+    public byte[] generateQRCode(BarcodeRequest request) throws WriterException, IOException {
         Map<EncodeHintType, Object> hints = new HashMap<>();
         hints.put(EncodeHintType.ERROR_CORRECTION, ErrorCorrectionLevel.H);
         hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-        BitMatrix matrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 200, 200, hints);
-        int width = matrix.getWidth();
-        int height = matrix.getHeight();
-        BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                image.setRGB(x, y, matrix.get(x, y) ? Color.BLACK.getRGB() : Color.WHITE.getRGB());
+        BitMatrix matrix = new MultiFormatWriter().encode(request.getContent(), BarcodeFormat.QR_CODE, request.getWidth(), request.getHeight(), hints);
+        BufferedImage image = new BufferedImage(request.getWidth(), request.getHeight(), BufferedImage.TYPE_INT_RGB);
+        for (int x = 0; x < request.getWidth(); x++) {
+            for (int y = 0; y < request.getHeight(); y++) {
+                image.setRGB(x, y, matrix.get(x, y)? Color.BLACK.getRGB() : Color.WHITE.getRGB());
             }
         }
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ImageIO.write(image, "png", outputStream);
         return outputStream.toByteArray();
-    }}
+    }
+
+}
